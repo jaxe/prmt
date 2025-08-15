@@ -1,140 +1,63 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.7">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fullscreen Slideshow (Autoplay)</title>
+  <style>
+    html, body { height: 100%; margin: 0; background:#000; }
+    #stage { position: fixed; inset: 0; display: grid; place-items: center; background: #000; }
+    #img { max-width: 100vw; max-height: 100vh; object-fit: contain; background: #000; transition: opacity .4s ease; }
   </style>
 </head>
 <body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="en"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="utf-8" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;Fullscreen Slideshow (Autoplay)&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>html, body { height: 100%; margin: 0; background:#000; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>#stage { position: fixed; inset: 0; display: grid; place-items: center; background: #000; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>#img { max-width: 100vw; max-height: 100vh; object-fit: contain; background: #000; transition: opacity .4s ease; }</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Minimal version: no controls, no overlays, no swipes; auto-plays every 15s. --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="stage"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;img id="img" alt="slideshow image" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>// === CONFIG ===</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const TOTAL = 476;<span class="Apple-converted-space">        </span>// total number of images</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const PAD <span class="Apple-converted-space">  </span>= 3;<span class="Apple-converted-space">          </span>// digits, e.g. 3 -&gt; 001.jpg</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const EXT <span class="Apple-converted-space">  </span>= 'jpg';<span class="Apple-converted-space">      </span>// file extension</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const DIR <span class="Apple-converted-space">  </span>= 'images'; <span class="Apple-converted-space">  </span>// folder containing your images</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const INTERVAL_MS = 15000; // 15 seconds</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Helpers</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const pad = (n) =&gt; String(n).padStart(PAD, '0');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const pathFor = (i) =&gt; `${DIR}/${pad(i)}.${EXT}`;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Sequence 1..TOTAL</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const seq = Array.from({length: TOTAL}, (_, i) =&gt; i + 1);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Elements</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const imgEl = document.getElementById('img');</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>let idx = 0;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function setImage(i) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>idx = (i + seq.length) % seq.length;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const slide = seq[idx];</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const src = pathFor(slide);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>imgEl.style.opacity = 0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const pre = new Image();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>pre.onload = () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>imgEl.src = src;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>imgEl.style.opacity = 1;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// Preload next for smoothness</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const nxt = new Image();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>nxt.src = pathFor(seq[(idx + 1) % seq.length]);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>};</p>
-<p class="p1"><span class="Apple-converted-space">      </span>pre.src = src;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function next() { setImage(idx + 1); }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Kick off</p>
-<p class="p1"><span class="Apple-converted-space">    </span>setImage(0);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>setInterval(next, INTERVAL_MS);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="en"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="utf-8" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;Fullscreen Slideshow (Autoplay)&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>html, body { height: 100%; margin: 0; background:#000; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>#stage { position: fixed; inset: 0; display: grid; place-items: center; background: #000; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>#img { max-width: 100vw; max-height: 100vh; object-fit: contain; background: #000; transition: opacity .4s ease; }</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Minimal version: no controls, no overlays, no swipes; auto-plays every 15s. --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="stage"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;img id="img" alt="slideshow image" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>// === CONFIG ===</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const TOTAL = 476;<span class="Apple-converted-space">        </span>// total number of images</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const PAD <span class="Apple-converted-space">  </span>= 3;<span class="Apple-converted-space">          </span>// digits, e.g. 3 -&gt; 001.jpg</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const EXT <span class="Apple-converted-space">  </span>= 'jpg';<span class="Apple-converted-space">      </span>// file extension</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const DIR <span class="Apple-converted-space">  </span>= 'images'; <span class="Apple-converted-space">  </span>// folder containing your images</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const INTERVAL_MS = 15000; // 15 seconds</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Helpers</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const pad = (n) =&gt; String(n).padStart(PAD, '0');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const pathFor = (i) =&gt; `${DIR}/${pad(i)}.${EXT}`;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Sequence 1..TOTAL</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const seq = Array.from({length: TOTAL}, (_, i) =&gt; i + 1);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Elements</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const imgEl = document.getElementById('img');</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>let idx = 0;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function setImage(i) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>idx = (i + seq.length) % seq.length;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const slide = seq[idx];</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const src = pathFor(slide);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>imgEl.style.opacity = 0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const pre = new Image();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>pre.onload = () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>imgEl.src = src;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>imgEl.style.opacity = 1;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// Preload next for smoothness</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const nxt = new Image();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>nxt.src = pathFor(seq[(idx + 1) % seq.length]);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>};</p>
-<p class="p1"><span class="Apple-converted-space">      </span>pre.src = src;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function next() { setImage(idx + 1); }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Kick off</p>
-<p class="p1"><span class="Apple-converted-space">    </span>setImage(0);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>setInterval(next, INTERVAL_MS);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+  <!-- Minimal version: no controls, no overlays, no swipes; auto-plays every 15s. -->
+  <div id="stage">
+    <img id="img" alt="slideshow image" />
+  </div>
+
+  <script>
+    // === CONFIG ===
+    const TOTAL = 5;        // total number of images
+    const PAD   = 3;          // digits, e.g. 3 -> 001.jpg
+    const EXT   = 'jpeg';      // file extension
+    const DIR   = 'images';   // folder containing your images
+    const INTERVAL_MS = 15000; // 15 seconds
+
+    // Helpers
+    const pad = (n) => String(n).padStart(PAD, '0');
+    const pathFor = (i) => `${DIR}/${pad(i)}.${EXT}`;
+
+    // Sequence 1..TOTAL
+    const seq = Array.from({length: TOTAL}, (_, i) => i + 1);
+
+    // Elements
+    const imgEl = document.getElementById('img');
+
+    let idx = 0;
+
+    function setImage(i) {
+      idx = (i + seq.length) % seq.length;
+      const slide = seq[idx];
+      const src = pathFor(slide);
+      imgEl.style.opacity = 0;
+      const pre = new Image();
+      pre.onload = () => {
+        imgEl.src = src;
+        imgEl.style.opacity = 1;
+        // Preload next for smoothness
+        const nxt = new Image();
+        nxt.src = pathFor(seq[(idx + 1) % seq.length]);
+      };
+      pre.src = src;
+    }
+
+    function next() { setImage(idx + 1); }
+
+    // Kick off
+    setImage(0);
+    setInterval(next, INTERVAL_MS);
+  </script>
 </body>
 </html>
+<!DOCTYPE html>
